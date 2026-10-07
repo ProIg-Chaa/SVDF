@@ -1,0 +1,50 @@
+{
+  "r1": {
+    "architecture": [
+      "Qwen2_5_VLForConditionalGeneration"
+    ],
+    "model_type": "qwen2_5_vl",
+    "gpus": 1,
+    "threshold": 1.25,
+    "processor_max_pixels_override": null,
+    "effective_processor_max_pixels": 12845056,
+    "processor_min_pixels": 3136,
+    "vocab_size": 152064,
+    "hidden_size": 3584,
+    "num_hidden_layers": 28,
+    "num_key_value_heads": 4,
+    "path": "/path/to/checkpoints/R1-Onevision-7B-RL"
+  },
+  "openvl": {
+    "architecture": [
+      "Qwen2_5_VLForConditionalGeneration"
+    ],
+    "model_type": "qwen2_5_vl",
+    "gpus": 1,
+    "threshold": 0.01,
+    "processor_max_pixels_override": null,
+    "effective_processor_max_pixels": 12845056,
+    "processor_min_pixels": 3136,
+    "vocab_size": 152064,
+    "hidden_size": 3584,
+    "num_hidden_layers": 28,
+    "num_key_value_heads": 4,
+    "path": "/path/to/checkpoints/OpenVLThinker-7B"
+  },
+  "qwen3b": {
+    "architecture": [
+      "Qwen2_5_VLForConditionalGeneration"
+    ],
+    "model_type": "qwen2_5_vl",
+    "gpus": 1,
+    "threshold": 0.66015625,
+    "processor_max_pixels_override": null,
+    "effective_processor_max_pixels": 12845056,
+    "processor_min_pixels": 3136,
+    "vocab_size": 151936,
+    "hidden_size": 2048,
+    "num_hidden_layers": 36,
+    "num_key_value_heads": 2,
+    "path": "/path/to/checkpoints/Qwen2.5-VL-3B-Instruct"
+  }
+}

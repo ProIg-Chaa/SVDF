@@ -1,0 +1,7 @@
+# Reference stack: NVIDIA PyTorch 24.01 (torch 2.2.0a0+81ea7a4).
+# Install CUDA-enabled PyTorch separately.
+transformers==4.49.0
+qwen-vl-utils==0.0.14
+numpy==1.24.4
+Pillow==10.2.0
+accelerate==1.10.1
