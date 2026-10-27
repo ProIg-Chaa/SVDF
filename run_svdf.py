@@ -8,7 +8,9 @@ ROOT = Path(__file__).resolve().parent
 
 def main():
     parser = argparse.ArgumentParser(description="SVDF: early capture and four visual input feedbacks")
-    parser.add_argument("--model", choices=["r1", "openvl", "qwen3b"], default="r1")
+    parser.add_argument("--model", choices=["r1", "openvl", "qwen3b", "rethinker"], default="r1")
+    parser.add_argument("--model-config", default=str(ROOT / "configs" / "models.example.json"),
+                        help="Model contracts and initialization profile (JSON)")
     parser.add_argument("--model-path", required=True)
     parser.add_argument("--image", required=True)
     parser.add_argument("--question", required=True)
@@ -28,7 +30,9 @@ def main():
     from lean_generation import generate_lean_fixed
     from online_provider import OnlineProvider
     from common_decode import generate_baseline
-    spec = json.loads((ROOT / "configs" / "models.example.json").read_text())[args.model]
+    spec = json.loads(Path(args.model_config).read_text())[args.model]
+    if args.method == "one-soft":
+        spec["initialization"] = "onesoft"
     spec["path"] = str(model_path)
     sample = {"id": "single", "dataset": "user", "question": args.question,
               "options": args.options, "image": str(image), "pair_id": None,

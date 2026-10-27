@@ -1,11 +1,6 @@
-"""Lean execution of the frozen R1 fixed4 input-feedback protocol.
-
-Only step0 and the actual capture step form p@E. Entropy is evaluated while
-waiting in the unchanged step2..9 window. Afterwards there are no soft vectors,
-LEAD switches, transition geometry, or controller-history updates.
-The original filtered greedy choice is retained bit-for-bit; this is execution
-cleanup, not a change to selection, precision, thresholds, or the visual action.
-Weak replay and state isolation remain the frozen engine implementation.
+"""Fixed-window SVDF-F4; initialization and calibrated threshold frozen per model.
+Only 3B replaces step0 soft by hard, in both main and weak capture.
+Capture once, same BF16 pE difference/rho direction, four feedbacks, then hard.
 """
 import torch
 import torch.nn.functional as F
@@ -40,8 +35,11 @@ def generate_lean_fixed(model, tokenizer, **kwargs):
             raise ValueError("Unsupported active legacy control: "+name)
     if kwargs.get("forced_prefix_ids") is not None:
         raise ValueError("Forced-prefix weak replay stays on the frozen reference engine")
-    if kwargs.get("trace_route_override_kind", "none") != "none":
+    if kwargs.get("trace_route_override_kind", "none") not in ("none", "hard"):
         raise ValueError("Only the frozen online provider can supply a visual action")
+    hard_initialization = kwargs.get("trace_route_override_kind", "none") == "hard"
+    if hard_initialization and (kwargs.get("trace_route_override_step") != 0 or kwargs.get("trace_route_override_duration") != 1):
+        raise ValueError("Only step0 hard initialization override is permitted")
     if kwargs.get("trace_soft_vector_collector") is not None:
         raise ValueError("Weak capture uses the unmodified reference generator")
     if kwargs.get("capture_logits_sink") is not None:
@@ -147,11 +145,11 @@ def generate_lean_fixed(model, tokenizer, **kwargs):
                 ((cur_entropy > reference_ratio*cur_ref_entropy)
                  & (cur_entropy > threshold))[0].item()
             )
-        need_soft = step == 0 or (waiting and entropy_proposed)
+        need_soft = (step == 0 and not hard_initialization) or (waiting and entropy_proposed)
         raw_soft_emb = torch.matmul(probs_original, E) if need_soft else None
         if need_soft:
             soft_steps.append(step)
-        last_emb = raw_soft_emb if step == 0 else normal_emb
+        last_emb = raw_soft_emb if step == 0 and not hard_initialization else normal_emb
         route_override_active = False
 
         if waiting and entropy_proposed:
@@ -186,7 +184,7 @@ def generate_lean_fixed(model, tokenizer, **kwargs):
                 "raw_entropy": float(cur_entropy[0].item()) if cur_entropy is not None else None,
                 "raw_top1_prob": float(probs_original[0].max().item()) if probs_original is not None else None,
                 "cur_ref_entropy": float(cur_ref_entropy[0].item()) if cur_ref_entropy is not None else None,
-                "mode": "soft" if step == 0 else "normal",
+                "mode": "soft" if step == 0 and not hard_initialization else "normal",
                 "mode_before": mode_before,
                 "to_soft": False, "to_normal": step == 1,
                 "locked_normal": False, "route_suppressed_by": [],

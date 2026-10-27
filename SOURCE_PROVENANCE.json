@@ -1,101 +1,101 @@
 {
-  "exported_utc": "2026-10-07T11:39:49.885136+00:00",
+  "exported_utc": "2026-10-27T06:13:55.104650+00:00",
   "checkpoint_commit": "95326a008aff675100b5cc4318af36d58946c2e3",
   "protocol": "fixed-window input feedback, one raw-soft start, steps2-9 entropy trigger, one capture, four feedbacks",
   "files": [
     {
       "path": "core/common_decode.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/common_decode.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/common_decode.py",
       "sha256": "f395563fe158db2630ac22935d3caadc9815060aeb303b2bcfdf0fc6d88678e9",
       "byte_identical": true
     },
     {
       "path": "core/frozen_engine.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/frozen_engine.py",
-      "sha256": "726821ea5a28cc6bd2b27fb275dac949839516c8088e8a8c56b38019c041695e",
+      "source": "experiments/20261009_rethinker_core4_theta05/frozen_engine.py",
+      "sha256": "4e8b3dd598a67baa25e2d0a9b5dff6c0b9f36df72a84bc06c913bf345a120266",
       "byte_identical": true
     },
     {
       "path": "core/lean_generation.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/lean_generation.py",
-      "sha256": "6ace6fb8d7fb311424df979f9cf3fad27d4554362df180418b2af4c49c01cdd8",
+      "source": "experiments/20261009_rethinker_core4_theta05/lean_generation.py",
+      "sha256": "7e2fd3d2522db94ead6a123ebb3d70f252ced2a8f45e622dfbbe6fe9bd300241",
       "byte_identical": true
     },
     {
       "path": "core/source/base.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/base.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/base.py",
       "sha256": "68dcf2dc4ce859731d1e89a115181fdf6c6d07c399edf6236063e2c9a0186253",
       "byte_identical": true
     },
     {
       "path": "core/source/cache_index_adapter.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/cache_index_adapter.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/cache_index_adapter.py",
       "sha256": "47db14488ca768294420eaea80e8158fe403f41db6af51ae9057b2c1dbf8698b",
       "byte_identical": true
     },
     {
       "path": "core/source/lead/__init__.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/lead/__init__.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/lead/__init__.py",
       "sha256": "688cce713cf961753a7f1e1c91a629fc7206c122d7d5e8efeec88fff7642f6bc",
       "byte_identical": true
     },
     {
       "path": "core/source/lead/generation_utils.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/lead/generation_utils.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/lead/generation_utils.py",
       "sha256": "ac4869252d9efb134d648725ca4b3291d25cd3f664f95b217677bbd668cbe132",
       "byte_identical": true
     },
     {
       "path": "core/source/lead/inference.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/lead/inference.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/lead/inference.py",
       "sha256": "13f675b315f8ba41cccaedfe2e6ab6b3fd26bd63a30dadab2b9004350d2ad151",
       "byte_identical": true
     },
     {
       "path": "core/source/lead/prompts.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/lead/prompts.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/lead/prompts.py",
       "sha256": "52fe15907f0ce4a4635d7137f700a9caea8caf464ede7e117fa1f8a7bc3f9d6a",
       "byte_identical": true
     },
     {
       "path": "core/source/lead/refinement_controller.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/lead/refinement_controller.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/lead/refinement_controller.py",
       "sha256": "ab3a8b8244ee572ce4c2dd8c1155f1baccc1e3490417e25abf8eb97cef99f362",
       "byte_identical": true
     },
     {
       "path": "core/source/multi_device.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/multi_device.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/multi_device.py",
       "sha256": "3a3987973b35f6f51f7ed36f480323883b0afdfdc5056712f30f39053603890f",
       "byte_identical": true
     },
     {
       "path": "core/source/route_tape.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/route_tape.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/route_tape.py",
       "sha256": "87576dad73914987846ea913f63650d22e3a09829ee9f0f3a2a8a97644c2e88a",
       "byte_identical": true
     },
     {
       "path": "core/source/scale_contract.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/scale_contract.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/scale_contract.py",
       "sha256": "43445ac2be265135c6535825c20453c0050cda8b55b363d4083d1330bb1a83f3",
       "byte_identical": true
     },
     {
       "path": "core/source/scale_model_loader.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/scale_model_loader.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/scale_model_loader.py",
       "sha256": "ae930c519602b28a760d0172712336e00c6e9b5a67f1141be98559e9a21a5544",
       "byte_identical": true
     },
     {
       "path": "core/source/state_isolation.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/state_isolation.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/state_isolation.py",
       "sha256": "de8b1d3750595561fb3dd809d9822b03b3a395b1e360d7f56abf042b3a68fcd1",
       "byte_identical": true
     },
     {
       "path": "core/source/sweep.py",
-      "source": "experiments/20261006_svdf_fixed_three_model_extension/source/sweep.py",
+      "source": "experiments/20261009_rethinker_core4_theta05/source/sweep.py",
       "sha256": "47781e162872a1926ff4601d61b8d81549b7e2337976370ab77b2298cfa39a7d",
       "byte_identical": true
     },
@@ -103,9 +103,13 @@
       "path": "core/online_provider.py",
       "source": "experiments/20261006_svdf_fixed_three_model_extension/reference_online.py:OnlineProvider",
       "sha256": "0864d083ecb40a2d723262e9a8bf270e65fc282d33d52544279d7335da47319f",
-      "class_AST_identical": true
+      "class_AST_identical": true,
+      "current_class_verified_against": "experiments/20261009_rethinker_core4_theta05/reference_online.py:OnlineProvider"
     }
   ],
   "experimental_sources_modified": false,
-  "new_GPU_validation_performed": false
+  "new_GPU_validation_performed": false,
+  "initial_exported_utc": "2026-10-07T11:39:49.885136+00:00",
+  "previous_public_commit": "e56e7d51fa21c47435a82b7d77bffd66c1b46627",
+  "update": "Sync frozen decoder with validated initialization ablation support and add experimental source snapshots."
 }

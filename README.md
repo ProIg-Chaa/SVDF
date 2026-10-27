@@ -26,7 +26,7 @@ The path does not use refinement, RDC, continuous two-image decoding, or newline
 
 The reference environment uses NVIDIA PyTorch 24.01 (`torch 2.2.0a0+81ea7a4`), Transformers 4.49.0, Qwen VL Utils 0.0.14, NumPy 1.24.4, Pillow 10.2.0, and Accelerate 1.10.1. Install a CUDA-enabled PyTorch separately, then `pip install -r requirements.txt`. The implementation retains the tested Qwen2.5-VL cache and vision-SDPA interfaces.
 
-Supported checkpoint families are R1-Onevision-7B-RL, OpenVLThinker-7B, and Qwen2.5-VL-3B-Instruct. The exported contracts use one CUDA device. Weights and datasets are not included or automatically downloaded.
+Supported checkpoint families are R1-Onevision-7B-RL, OpenVLThinker-7B, Qwen2.5-VL-3B-Instruct, and VL-Rethinker-7B. The exported contracts use one CUDA device. Weights and datasets are not included or automatically downloaded.
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python run_svdf.py --model r1 \
@@ -37,7 +37,7 @@ CUDA_VISIBLE_DEVICES=0 python run_svdf.py --model r1 \
 
 Use `--options` for multiline answer choices, and `--method cot` or `--method one-soft` for the corresponding baseline. Each run directory must be new. Preserve the original question/options for existing evaluation protocols; this CLI does not perform benchmark scoring.
 
-Frozen entropy thresholds: R1 **1.25**, OpenVL **0.01**, Qwen2.5-VL-3B **0.66015625**. They are checkpoint-specific settings.
+The default core profile retains thresholds R1 **1.25**, OpenVL **0.01**, Qwen2.5-VL-3B **0.66015625**, and adds VL-Rethinker **0.5**. `configs/models.extension.example.json` separately records the later extension profile: OpenVL **0.375**, Qwen3B hard initialization, Rethinker **0.5** with one-soft initialization. Select it explicitly with `--model-config`; core and extension settings must not be conflated. `--method one-soft` always requests soft initialization.
 
 ## Provenance
 
@@ -48,3 +48,7 @@ The original experiment tree and running jobs remain unchanged. Models, datasets
 ## Acknowledgments
 
 Replay and prompt infrastructure derive from [LEAD](https://github.com/mlrm-LEAD/mlrm-LEAD). Its original MIT license and copyright are retained in `LICENSE`. Other historical controls in the vendored compatibility decoder are inactive on the SVDF path described above.
+
+## Experimental code update (2026-10-27)
+
+The frozen core includes the validated hard-initialization ablation support from the later implementation. The default one-soft path remains configured as above. OnlineProvider retains the same AST as the validated experimental source. [Experiment snapshots](research/README.md) cover comparisons, R1 ablations, local diagnostics, COCO ranking and scoring. Models, samples, outputs and credentials are excluded. CPU syntax and provenance checks were performed; no new GPU experiment was run.

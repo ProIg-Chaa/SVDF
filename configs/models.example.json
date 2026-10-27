@@ -46,5 +46,21 @@
     "num_hidden_layers": 36,
     "num_key_value_heads": 2,
     "path": "/path/to/checkpoints/Qwen2.5-VL-3B-Instruct"
+  },
+  "rethinker": {
+    "architecture": [
+      "Qwen2_5_VLForConditionalGeneration"
+    ],
+    "model_type": "qwen2_5_vl",
+    "gpus": 1,
+    "threshold": 0.5,
+    "processor_max_pixels_override": null,
+    "effective_processor_max_pixels": 1003520,
+    "processor_min_pixels": 200704,
+    "vocab_size": 152064,
+    "hidden_size": 3584,
+    "num_hidden_layers": 28,
+    "num_key_value_heads": 4,
+    "path": "/path/to/checkpoints/VL-Rethinker-7B"
   }
 }

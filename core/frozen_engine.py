@@ -3,6 +3,7 @@ import gc,hashlib,json,os,sys,time
 from pathlib import Path
 E=Path(__file__).resolve().parent;R=E.parent.parent
 weak_observer=None
+hard_initialization=False
 sys.path.insert(0,str(E/'source'))
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def read(p):return [json.loads(l) for l in Path(p).read_text().splitlines() if l.strip()]
@@ -29,6 +30,7 @@ def generate(s,cap=2,trace_on=True,plain_init=True,audit=False,stop_first=False,
  kw=base.sweep.talr_kwargs(math_ids,1024,**base.controller(threshold));kw.update(lead_refinement_soft_cap=cap,lead_refinement_start_offset=0,lead_refinement_soft_mix_lambda=lam)
  if provider is not None:kw['trace_online_residual_provider']=provider
  if plain_init:kw.update(lead_disable_step0_linebreak_mix=True,lead_disable_to_normal_transition=True,lead_force_initial_transition_step1=True,math_ids_tensor=None)
+ if plain_init and hard_initialization:kw.update(trace_route_override_step=0,trace_route_override_kind='hard',trace_route_override_duration=1)
  frozen=dict(lead_refinement_window=8,lead_refinement_soft_mix_lambda=lam,lead_refinement_entropy_threshold=threshold,lead_refinement_threshold_mode='fixed',lead_disable_answer_zone_lock=True,do_sample=False,max_new_tokens=1024)
  assert all(kw[k]==v for k,v in frozen.items())
  assert kw['lead_initial_transition_with_refinement'] and not kw.get('lead_initial_transition_only',False)
@@ -41,12 +43,12 @@ def generate(s,cap=2,trace_on=True,plain_init=True,audit=False,stop_first=False,
   def append(self,row):
    super().append({k:row[k] for k in FIELDS if k in row})
    live=sys._getframe(1).f_locals;step=int(row['step']);hard=live['E'][live['next_tokens']];feedback=live['last_emb']
-   before=live['route_origin'] if row.get('route_override_active') else feedback
+   before=live['route_origin'] if row.get('route_override_active') and step>=2 else feedback
    tau=row.get('lead_initial_transition_step')
    self[-1]['residual_eligible']=eligible(row)
    self[-1]['residual_elapsed']=None if tau is None else step-tau
    if plain_init and step==0:
-    expected=torch.matmul(live['probs_original'].to(live['E'].dtype),live['E']);assert torch.equal(before,expected),'plain initial raw soft changed'
+    expected=hard if hard_initialization else torch.matmul(live['probs_original'].to(live['E'].dtype),live['E']);assert torch.equal(before,expected),'initialization feedback mismatch'
    elif row.get('lead_refinement_active'):
     assert cap>0 and torch.equal(before,lam*live['soft_emb']+(1.-lam)*hard),'main refinement mixture mismatch'
    elif (plain_init and step>=1) or (tau is not None and step>tau):
@@ -55,7 +57,7 @@ def generate(s,cap=2,trace_on=True,plain_init=True,audit=False,stop_first=False,
    if tau is not None and step>tau:
     assert_no_later_switch(row,int(live['mode'][0].item()))
    if cap==0:assert not row['lead_refinement_active']
-   if row.get('route_override_active'):
+   if row.get('route_override_active') and step>=2:
     assert torch.equal(feedback,before+live['external_emb'])
     expected_action=action if action is not None else provider.vector
     assert torch.equal(live['external_emb'][0].detach().cpu(),expected_action.to(model.dtype).cpu())
@@ -98,7 +100,7 @@ def generate(s,cap=2,trace_on=True,plain_init=True,audit=False,stop_first=False,
    assert {r['lead_initial_transition_step'] for r in trace if r['lead_initial_transition_step'] is not None}=={1}
    assert all(r['cur_ref_entropy']==trace[1]['raw_entropy'] for r in trace[1:]),'reference must stay at step1 raw entropy'
   if provider is not None and provider.event is not None:event=provider.event
-  if action is not None or (provider is not None and provider.event is not None):assert [r['step'] for r in trace if r.get('route_override_active')]==list(range(event,min(event+4,len(tokens))))
+  if action is not None or (provider is not None and provider.event is not None):assert [r['step'] for r in trace if r.get('route_override_active') and r['step']>=2]==list(range(event,min(event+4,len(tokens))))
  return tokens,list(trace),dict(seconds=time.monotonic()-t,consumed=consumed,input_ids_sha256=ih,hashes=hashes,stopped=stopped,effective_consumed=[i for i in effective if i<len(tokens)-1],initial_geometry=initial_geometry,residual_geometry=residual_geometry)
 def capture(s,image,prefix,event,plain_init=True,lam=1.):
  isolation.restore_checked(initial);inputs,_=base.prepare(processor,s,image,model.device);vectors=[];pending=[];consumed=[]
@@ -106,7 +108,7 @@ def capture(s,image,prefix,event,plain_init=True,lam=1.):
   def append(self,row):
    live=sys._getframe(1).f_locals;step=int(row['step']);hard=live['E'][live['next_tokens']]
    if weak_observer is not None:weak_observer(sys._getframe(1))
-   if plain_init and step==0:assert torch.equal(live['last_emb'],torch.matmul(live['probs_original'].to(live['E'].dtype),live['E']))
+   if plain_init and step==0:assert torch.equal(live['last_emb'],hard if hard_initialization else torch.matmul(live['probs_original'].to(live['E'].dtype),live['E']))
    if plain_init and step==1:assert torch.equal(live['last_emb'],hard) and row['lead_initial_transition_step']==1
    if row.get('lead_refinement_active'):
     assert torch.equal(live['last_emb'],lam*live['soft_emb']+(1.-lam)*hard)
@@ -116,6 +118,7 @@ def capture(s,image,prefix,event,plain_init=True,lam=1.):
  kw=base.sweep.talr_kwargs(math_ids,event+1,**base.controller(threshold))
  kw.update(lead_refinement_soft_cap=0,lead_refinement_soft_mix_lambda=lam,lead_refinement_start_offset=0,forced_prefix_ids=prefix,trace_soft_vector_collector=vectors,trace_capture_soft_vector_step=event,token_trace=ct,trace_topk=0)
  if plain_init:kw.update(lead_disable_step0_linebreak_mix=True,lead_disable_to_normal_transition=True,lead_force_initial_transition_step1=True,math_ids_tensor=None)
+ if plain_init and hard_initialization:kw.update(trace_route_override_step=0,trace_route_override_kind='hard',trace_route_override_duration=1)
  assert kw['lead_refinement_window']==8 and kw['lead_refinement_soft_cap']==0 and kw['lead_refinement_soft_mix_lambda']==lam and 'lead_refinement_fixed_slots' not in kw
  def consumer(module,pos,kws):
   if pending:
@@ -128,7 +131,7 @@ def capture(s,image,prefix,event,plain_init=True,lam=1.):
  assert len(vectors)==1 and [r['token_id'] for r in ct]==prefix and [r['step'] for r in ct]==list(range(event+1))
  v=vectors[0];assert v['step']==event and v['selected_token_id']==prefix[event]
  if plain_init:assert {r['lead_initial_transition_step'] for r in ct if r['lead_initial_transition_step'] is not None}=={1}
- audit=dict(seconds=time.monotonic()-t,horizon=event+1,start_offset=0,forced_prefix_sha256=hashlib.sha256(json.dumps(prefix).encode()).hexdigest(),handoff_steps=sorted({r['lead_initial_transition_step'] for r in ct if r['lead_initial_transition_step'] is not None}),refinement_steps=[r['step'] for r in ct if r.get('lead_refinement_active')],selected_token_id=v['selected_token_id'],soft_pre_feedback_mix=True,main_kv_used=False,initialization='plain' if plain_init else 'original',window=8,soft_cap=0,refinement_lambda=lam,consumed_refinement_steps=consumed)
+ audit=dict(seconds=time.monotonic()-t,horizon=event+1,start_offset=0,forced_prefix_sha256=hashlib.sha256(json.dumps(prefix).encode()).hexdigest(),handoff_steps=sorted({r['lead_initial_transition_step'] for r in ct if r['lead_initial_transition_step'] is not None}),refinement_steps=[r['step'] for r in ct if r.get('lead_refinement_active')],selected_token_id=v['selected_token_id'],soft_pre_feedback_mix=True,main_kv_used=False,initialization=('hard' if hard_initialization else 'plain') if plain_init else 'original',window=8,soft_cap=0,refinement_lambda=lam,consumed_refinement_steps=consumed)
  return v,audit
 
 def native_plain_once(s):
@@ -147,7 +150,8 @@ def native_plain_once(s):
  return [int(x) for x in out[length:].tolist()],hashes
 
 def init(spec,folder,theta):
- global torch,base,model,processor,tokenizer,math_ids,weight,isolation,initial,original,input_hashes,threshold,tensor_sha,tensor_hash,generate_cot
+ global torch,base,model,processor,tokenizer,math_ids,weight,isolation,initial,original,input_hashes,threshold,tensor_sha,tensor_hash,generate_cot,hard_initialization
+ hard_initialization=spec.get('initialization','onesoft')=='hard'
  import torch,base
  from scale_model_loader import load_model
  from state_isolation import StateIsolation,tensor_sha
